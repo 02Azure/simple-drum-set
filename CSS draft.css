@@ -1,0 +1,103 @@
+@import "https://fonts.googleapis.com/css2?family=Orbitron&display=swap";
+
+*{
+	font-family:Orbitron,"Courier New";
+  text-align:center;
+  color:azure;
+} 
+
+html{
+  background-color:rgb(0,0,50);
+}
+
+#drum-machineApp{
+ display:flex;
+ justify-content:center;
+ align-items:center;
+ user-select:none;
+ height:96vh;
+}
+
+#drum-machine{
+ background-color:steelblue;
+ border:solid azure 2px;
+}
+#drum-padContainer{
+  width: 255px;
+  height: 255px;
+  padding: 5px;
+  margin:5px;
+  float:left;
+}
+.drum-pad{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:60px;
+  height:60px;
+  padding:5px;
+  margin:5px;
+  border:solid black 2px;
+  box-shadow:-2px 2px black;
+  float:left; 
+  background-color:navy;
+  color:azure;
+  font-weight:bold;
+}
+
+.button-triggered {
+  transform:translate(-2px,2px);
+  box-shadow:0px 0px;
+}
+
+h1{
+  font-size:1.4em;
+}
+
+#instruction{
+  width: 160px;
+  height: 265px;
+  margin:5px 0px;
+  padding:0px 5px;
+  float:left;
+  font-size:0.85em; 
+}
+
+#controls{
+  clear:left;
+  width:445px;
+  margin:0px 5px;
+}
+
+#volumeControl{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:10px;
+}
+
+#display{
+  margin:5px auto;
+  width:150px;
+  padding:8px 5px;
+  background-color:black;
+}
+
+#displayVolume{
+  margin:5px 10px;
+  background-color:black;
+  width:110px;
+}
+
+.buttonVolumeControl{
+  width:50px;
+  height:30px;
+  background-color:navy;
+  border-color:lightskyblue;
+  margin:5px;
+}
+
+#foot{
+  font-size:0.7em;
+  text-align:center;
+}

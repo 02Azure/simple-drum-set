@@ -1,0 +1,205 @@
+<!--HTML and JS ( JSX react )-->
+<!DOCTYPE HTML>
+<html lang="id">
+
+<head>
+  <title>Drum Machine</title>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="CSS draft.css" type="text/css">
+  <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+	<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+
+<main>
+  <div id ="drum-machineApp" ></div>
+  <script type="text/babel">
+    const drumPadDatabase = {
+		  idAudio:["Q","W","E","A","S","D","Z","X","C"],
+			idPad:["Bass","Floor Tom","Snare","Tom Tom","Closed-HH","Crash","Ride Cymbal","Splash Cymbal","China"],
+			sfx:[
+			"https://docs.google.com/uc?export=download&id=1UYrs3xUU2egUS9ra1VxiMZlEFFZvW8vp",
+			"https://docs.google.com/uc?export=download&id=1j0yZr3sjInaaDxfawr6FSwNw_uEIF0uw",
+			"https://docs.google.com/uc?export=download&id=1sElHJcFNH9BFxYl3-z-J7YmPIS0LSHEJ",
+			"https://docs.google.com/uc?export=download&id=1dVtvh7r5iYc8xUnN9S8BzR-LAAY3Gqkt",
+			"https://docs.google.com/uc?export=download&id=1tFCV8LJf6VmacgjHegyOW-MLGnFJly0O",
+			"https://docs.google.com/uc?export=download&id=1eK4sF3LkqUxveypFKCTqCyGD1BaBkhHV",
+			"https://docs.google.com/uc?export=download&id=13pY09DIVQgqrCRVGFGxNTeGIRq3Oc3x8",
+			"https://docs.google.com/uc?export=download&id=14OZV3LOYOCcbKxoO3e6pP_cXlhCouU1-",
+			"https://docs.google.com/uc?export=download&id=1hCPmAkJqTlTTH1cL_UqNryP4YUJs5t5Z"
+			],
+			triggerKey:[81,87,69,65,83,68,90,88,67] 			//Corresponding Key on keyboard that will trigger this
+		}
+	
+    class DrumApp extends React.Component{
+			constructor(props){
+				super(props);
+				this.state = {
+					displaySound:"Simple Drum Kit",
+					volume: 0.4
+				}
+				this.updateDisplay = this.updateDisplay.bind(this)
+				this.changeVolume = this.changeVolume.bind(this)
+			}
+			
+				updateDisplay(clipName){
+					this.setState({
+						displaySound:clipName
+					})
+				}
+			
+			  changeVolume=(value)=>()=>{
+				  if(this.state.volume+value<0)
+						this.setState({
+							volume:0
+						})
+					else if(this.state.volume+value>1)
+						this.setState({
+							volume:1
+						})	
+					else
+						this.setState({
+							volume:this.state.volume+value
+					})
+				}
+			
+      render(){
+				return(
+					<div id="drum-machine">
+					  <DrumPadContainer
+					   	updateDisplay = {this.updateDisplay}
+			        volume = {this.state.volume}
+						/>
+					  {Description}
+						<DisplayAndControl 
+						  displaySound= {this.state.displaySound}
+							changeVolume = {this.changeVolume}
+							volume = {this.state.volume}
+					  /> 
+						<p id='foot'>Laman ini dibuat sebagai salah satu latihan, by: Agus Domas</p>
+					</div>
+				)
+			}
+		}
+		
+ 		class DrumPadContainer extends React.Component{
+			constructor(props){
+				super(props);
+			}
+			
+			render(){
+				let drumPads= [];
+				  //create 9 <div> elements for each drum pad, put the corresponding id, sfx, trigger key, 
+			  for (let n = 0; n<9; n++ ){
+					drumPads[n] = 
+					  <DrumPad 
+							idAudio = {drumPadDatabase.idAudio[n]}
+							idPad = {drumPadDatabase.idPad[n]}
+							sfx = {drumPadDatabase.sfx[n]}
+							volume = {this.props.volume}
+							triggerKey = {drumPadDatabase.triggerKey[n]}
+							key = {drumPadDatabase.idAudio[n]}
+							updateDisplay = {this.props.updateDisplay}
+						/>
+				}	
+			  return(
+				  <div id={"drum-padContainer"}>{drumPads}</div>
+				)
+			}
+		} 
+		
+ 		class DrumPad extends React.Component{
+			constructor(props){
+				super(props);
+				this.state = {
+					drumPadStyle:""
+				}
+				this.handlePadTriggered = this.handlePadTriggered.bind(this);
+				this.handleKeyPressed = this.handleKeyPressed.bind(this);
+				this.changeStyle = this.changeStyle.bind(this);
+			}
+			
+			componentDidMount(){
+				document.addEventListener('keydown',this.handleKeyPressed)
+			}
+			
+			componentWillUnmount(){
+				document.removeEventListener('keydown',this.handleKeyPressed)
+			}		
+			
+			handleKeyPressed(event){
+        if(this.props.triggerKey==event.keyCode)
+          this.handlePadTriggered();					
+			}		
+			
+			changeStyle(){
+				if(this.state.drumPadStyle=="button-triggered")
+					this.setState({
+				 	  drumPadStyle:""	//change style to inactive if already 'pressed'
+				  })
+				else
+					this.setState({
+						drumPadStyle:"button-triggered" //change style to 'pressed'
+					})				
+			}
+			
+			handlePadTriggered(){ //trigger this when a pad is either pressed via click or with keyboard
+        let sound = document.getElementById(this.props.idAudio)
+				
+				sound.currentTime = 0;
+				sound.volume = this.props.volume;
+				sound.play(); //play corresponding audio class clip
+				
+				this.props.updateDisplay(this.props.idPad); //update the display with idpad
+				
+        this.changeStyle();
+				setTimeout(()=>{this.changeStyle()},125)
+			} 
+			
+			  render(){
+					return(
+					  <div 
+						  className={`drum-pad ${this.state.drumPadStyle}`} 
+							id={this.props.idPad}
+							onClick={this.handlePadTriggered}
+					  >
+						  {` ${this.props.idAudio} `}
+						  <audio
+						    className="clip"
+							  id={this.props.idAudio}
+							  src={this.props.sfx}
+              />
+						</div>					
+					)
+				}
+			}
+							
+		const Description = (
+		  <div id="instruction">
+				<h1> The Drum Machine </h1>
+				<p>Klik tombol atau tekan key pada keyboard untuk memainkan drum machine. Suara tidak segera keluar setelah halaman dimuat jika koneksi lambat</p> 
+			</div>
+		)
+		
+		const DisplayAndControl = props => {
+      return(
+				<div id='controls'>
+					<div id="display">{props.displaySound}</div>
+					<div id="volumeControl">
+						<button className="buttonVolumeControl" type="button" onClick={props.changeVolume(-0.05)}> &lt;&lt; </button> 
+						<button className="buttonVolumeControl" type="button" onClick={props.changeVolume(-0.01)}> - </button> 
+						<div id="displayVolume">volume: {Math.round(props.volume*100)}</div> 
+						<button className="buttonVolumeControl" type="button" onClick={props.changeVolume(0.01)}> + </button> 
+						<button className="buttonVolumeControl" type="button" onClick={props.changeVolume(0.05)}> &gt;&gt; </button> 
+					</div>
+				</div>
+			)
+		}
+  
+    ReactDOM.render(<DrumApp/>, document.getElementById('drum-machineApp'))
+  
+  </script>
+  
+</main>
+
+</html>

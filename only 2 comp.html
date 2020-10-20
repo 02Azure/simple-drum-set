@@ -1,0 +1,206 @@
+<!--HTML and JS ( JSX react )-->
+<!DOCTYPE HTML>
+<html lang="id">
+
+<head>
+  <title>Drum Machine</title>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="CSS draft.css" type="text/css">
+  <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+	<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+
+<main>
+  <div id ="drum-machineApp" ></div>
+  <script type="text/babel">
+    const drumPadDatabase = {
+		  idAudio:["Q","W","E","A","S","D","Z","X","C"],
+			idPad:["Bass","Floor Tom","Snare","Tom Tom","Closed-HH","Crash","Ride Cymbal","Splash Cymbal","China"],
+			sfx:[
+			"https://docs.google.com/uc?export=download&id=1UYrs3xUU2egUS9ra1VxiMZlEFFZvW8vp",
+			"https://docs.google.com/uc?export=download&id=1j0yZr3sjInaaDxfawr6FSwNw_uEIF0uw",
+			"https://docs.google.com/uc?export=download&id=1sElHJcFNH9BFxYl3-z-J7YmPIS0LSHEJ",
+			"https://docs.google.com/uc?export=download&id=1dVtvh7r5iYc8xUnN9S8BzR-LAAY3Gqkt",
+			"https://docs.google.com/uc?export=download&id=1tFCV8LJf6VmacgjHegyOW-MLGnFJly0O",
+			"https://docs.google.com/uc?export=download&id=1eK4sF3LkqUxveypFKCTqCyGD1BaBkhHV",
+			"https://docs.google.com/uc?export=download&id=13pY09DIVQgqrCRVGFGxNTeGIRq3Oc3x8",
+			"https://docs.google.com/uc?export=download&id=14OZV3LOYOCcbKxoO3e6pP_cXlhCouU1-",
+			"https://docs.google.com/uc?export=download&id=1hCPmAkJqTlTTH1cL_UqNryP4YUJs5t5Z"
+			],
+			triggerKey:[81,87,69,65,83,68,90,88,67] 			//Corresponding Key on keyboard that will trigger this in unicode
+		}
+
+    class DrumApp extends React.Component{
+			constructor(props){
+				super(props);
+				this.state = {
+					displaySound:"Simple Drum Kit",
+					soundVolume: 25
+				}
+				this.updateDisplay = this.updateDisplay.bind(this)
+				this.changeVolume = this.changeVolume.bind(this)
+			}
+			
+				updateDisplay(clipName){
+					this.setState({
+						displaySound:clipName
+					})
+				}
+			
+			  changeVolume=(value)=>()=>{
+				  if(this.state.soundVolume+value<0)
+						this.setState({
+							soundVolume:0
+						})
+					else if(this.state.soundVolume+value>100)
+						this.setState({
+							soundVolume:100
+						})	
+					else
+						this.setState({
+							soundVolume:this.state.soundVolume+value
+					})
+				}
+			
+      render(){
+				return(
+					<div id="drum-machine">
+					  <DrumPadContainer
+					   	updateDisplay = {this.updateDisplay}
+			        volume = {this.state.soundVolume}
+						/>
+					  {Description}
+						<DisplayAndControl 
+						  displaySound= {this.state.displaySound}
+							changeVolume = {this.changeVolume}
+							volume = {this.state.soundVolume}
+					  /> 
+						<p id='foot'>Laman ini dibuat sebagai salah satu latihan, by: Agus Domas</p>
+					</div>
+				)
+			}
+		}
+		
+ 		class DrumPadContainer extends React.Component{
+			constructor(props){
+				super(props);
+				this.state = {
+					drumPadStyle:[false,false,false,false,false,false,false,false,false]
+				}
+				this.handlePadClicked = this.handlePadClicked.bind(this);
+				this.handleKeyPressed = this.handleKeyPressed.bind(this);
+			}
+			
+			componentDidMount(){
+				document.addEventListener('keydown',this.handleKeyPressed)
+			}
+			
+			componentWillUnmount(){
+				document.removeEventListener('keydown',this.handleKeyPressed)
+			}
+			
+			handlePadClicked(event){
+        let sharedClass = event.target.className.replace('drum-pad','clip') //get the class of the button that was clicked, then replace drum-pad with clip
+        let sound = document.getElementsByClassName(sharedClass)[0] //get the audio element that match with numberx classname of the button
+				let n = parseInt(sharedClass.match(/\d/));
+				let inactive = [...this.state.drumPadStyle];
+        let triggeredStyle = [...this.state.drumPadStyle];
+				triggeredStyle[n] = "button-triggered";
+				sound.currentTime = 0;
+				sound.play();
+				this.props.updateDisplay(event.target.id);
+				this.setState({
+					drumPadStyle:triggeredStyle
+				})
+				setTimeout(()=>{
+					this.setState({
+					  drumPadStyle:inactive
+				  })},120
+				)			
+				//play corresponding audio class clip
+				//update the display with idpad
+				//change style to 'pressed'
+			} 
+			
+			handleKeyPressed(event){
+				if(drumPadDatabase.triggerKey.some(key=>key==event.keyCode)) {
+					let audioID = String.fromCharCode(event.keyCode); //convert the pressed unicode to string
+				  let sharedClass = document.getElementById(audioID).className.replace('clip','drum-pad'); //get the audio class name that match the key pressed, then replace clip with drum-pad
+					let sound = document.getElementById(audioID) //get audio element that matches with key pressed's unicode
+					let n = parseInt(sharedClass.match(/\d/));
+					let inactive = [...this.state.drumPadStyle];
+					let triggeredStyle = [...this.state.drumPadStyle];
+				  triggeredStyle[n] = "button-triggered";
+					sound.currentTime = 0
+					sound.play();
+					this.props.updateDisplay(document.getElementsByClassName(sharedClass)[0].id);
+				  this.setState({
+						drumPadStyle:triggeredStyle
+					})
+					setTimeout(()=>{
+						this.setState({
+							drumPadStyle:inactive
+				  })},120
+				)						
+				//play corresponding audio class clip
+				//update the display with idpad
+				//change style to 'pressed'
+				}
+				
+			  changeStyle
+			}
+			
+			render(){
+				let drumPads= [];
+				  //create 9 <div> elements for each drum pad, put the corresponding id, sfx, trigger key, 
+					//onclick --> handlePad triggered, onkeypressed --> handlePad triggered
+			  for (let n = 0; n<9; n++ ){
+					drumPads[n] = 
+					  <div
+						  className={`drum-pad number${n} ${this.state.drumPadStyle[n]}`} 
+							id={drumPadDatabase.idPad[n]}
+							key = {drumPadDatabase.idAudio[n]}
+							onClick={this.handlePadClicked}
+						>
+						  {` ${drumPadDatabase.idAudio[n]} `}
+						  <audio
+						    className={`clip number${n}`}
+							  id={drumPadDatabase.idAudio[n]}
+							  src={drumPadDatabase.sfx[n]}
+							/>
+						</div>
+				}	
+			  return(
+				  <div id={"drum-padContainer"}>{drumPads}</div>
+				)
+			}
+		} 
+								
+		const Description = (
+		  <div id="instruction">
+				<h1> The Drum Machine </h1>
+				<p>Klik tombol atau tekan key pada keyboard untuk memainkan drum machine. Suara tidak segera keluar setelah halaman dimuat jika koneksi lambat</p> 
+			</div>
+		)
+		
+		const DisplayAndControl = props => {
+      return(
+				<div id='controls'>
+					<div>{props.displaySound}</div>
+			    <div onClick={props.changeVolume(-5)}> &lt;&lt; </div> 
+					<div onClick={props.changeVolume(-1)}> - </div> 
+					<div>volume: {props.volume}</div> 
+					<div onClick={props.changeVolume(1)}> + </div> 
+					<div onClick={props.changeVolume(5)}> &gt;&gt; </div> 
+				</div>
+			)
+		}
+  
+    ReactDOM.render(<DrumApp/>, document.getElementById('drum-machineApp'))
+  
+  </script>
+  
+</main>
+
+</html>
